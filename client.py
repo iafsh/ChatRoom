@@ -16,6 +16,7 @@ username_header = f"{len(username):<{HEADER_LENGTH}}".encode("utf-8")
 client_socket.send(username_header + username + ISIMAGE)
 print("type '.' if you want to see all new messages")
 print("type 'exit' if you want to exit")
+print("type 'image' if you want to send an image")
 
 
 def sendingimage():
