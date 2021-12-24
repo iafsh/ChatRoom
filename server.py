@@ -1,7 +1,7 @@
 import socket
 import select
 
-HEADER_LENGTH = 10
+HEADER_LENGTH = 100
 IP = "127.0.0.1"
 PORT = 1235
 # AF_INET == ipv4
@@ -21,7 +21,11 @@ def recive(client_socket):
         if not len(message_header):
             return False
         message_legth = int(message_header.decode("utf-8").strip())
-        return {"header": message_header, "data": client_socket.recv(message_legth)}
+        return {
+            "header": message_header,
+            "data": client_socket.recv(message_legth),
+            "IsImage": client_socket.recv(1),
+        }
     except Exception as e:
         return False
 
@@ -46,9 +50,12 @@ while True:
                 sockets_list.remove(notified_socket)
                 del clients[notified_socket]
                 continue
-            print(
-                f"recived message from {user['data'].decode('utf-8')}:{message['data'].decode('utf-8')}"
-            )
+            if message["IsImage"].decode("utf-8") == "1":
+                print(f"recived image from {user['data'].decode('utf-8')}")
+            else:
+                print(
+                    f"recived message from {user['data'].decode('utf-8')}:{message['data'].decode('utf-8')}"
+                )
             user = clients[notified_socket]
 
             # sending msg to all other clients
@@ -59,6 +66,7 @@ while True:
                         + user["data"]
                         + message["header"]
                         + message["data"]
+                        + message["IsImage"]
                     )
     for notified_socket in exception_sockets:
         sockets_list.remove(notified_socket)
